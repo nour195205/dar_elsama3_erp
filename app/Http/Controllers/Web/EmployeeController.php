@@ -39,7 +39,8 @@ class EmployeeController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:4',
-            'role' => 'required|in:admin,employee',
+            'role' => 'required|in:admin,employee,manager',
+            'hourly_rate' => 'nullable|numeric|min:0',
         ]);
 
         DB::table('users')->insert([
@@ -48,6 +49,7 @@ class EmployeeController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'role' => $request->role,
+            'hourly_rate' => $request->hourly_rate ?? 0,
             'is_active' => $request->has('is_active'),
             'created_at' => now(),
             'updated_at' => now(),
@@ -73,7 +75,8 @@ class EmployeeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
-            'role' => 'required|in:admin,employee',
+            'role' => 'required|in:admin,employee,manager',
+            'hourly_rate' => 'nullable|numeric|min:0',
         ]);
 
         $data = [
@@ -81,6 +84,7 @@ class EmployeeController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'role' => $request->role,
+            'hourly_rate' => $request->hourly_rate ?? 0,
             'is_active' => $request->has('is_active'),
             'updated_at' => now(),
         ];

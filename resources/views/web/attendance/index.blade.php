@@ -11,14 +11,16 @@
     </div>
 </div>
 
-<div class="table-container">
-    <table>
+<div class="table-scroll-wrap table-container">
+    <table style="min-width: 900px;">
         <thead>
             <tr>
                 <th>اسم الموظف</th>
                 <th>التاريخ</th>
                 <th>وقت الحضور</th>
                 <th>وقت الانصراف</th>
+                <th>ساعات العمل</th>
+                <th>المرتب المستحق</th>
                 <th>الحالة</th>
             </tr>
         </thead>
@@ -33,6 +35,20 @@
                 <td style="color: var(--primary); font-weight: 600;">{{ $record->check_in ?? '---' }}</td>
                 <td style="color: #ff8529; font-weight: 600;">{{ $record->check_out ?? '---' }}</td>
                 <td>
+                    @if($record->work_hours > 0)
+                        <span style="font-weight: 600; color: #a78bfa;">{{ $record->work_hours }} <span style="font-size: 0.75rem; color: var(--text-muted);">ساعة</span></span>
+                    @else
+                        <span style="color: var(--text-muted);">---</span>
+                    @endif
+                </td>
+                <td>
+                    @if($record->earned_salary > 0)
+                        <span style="font-weight: 700; color: #00e699;">{{ number_format($record->earned_salary, 2) }} <span style="font-size: 0.75rem;">ج.م</span></span>
+                    @else
+                        <span style="color: var(--text-muted);">---</span>
+                    @endif
+                </td>
+                <td>
                     @if($record->check_in && $record->check_out)
                         <span class="badge badge-success" style="background: rgba(0, 230, 153, 0.1); color: var(--primary);">مكتمل</span>
                     @elseif($record->check_in && !$record->check_out)
@@ -44,7 +60,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="5" style="text-align: center; padding: 5rem; color: var(--text-muted);">
+                <td colspan="7" style="text-align: center; padding: 5rem; color: var(--text-muted);">
                     <i class="fas fa-clipboard-user" style="font-size: 4rem; margin-bottom: 1.5rem; display: block; opacity: 0.15;"></i>
                     لا توجد سجلات حضور حتى الآن
                 </td>
