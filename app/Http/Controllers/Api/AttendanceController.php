@@ -129,13 +129,17 @@ class AttendanceController extends Controller
 
         $user = User::find($request->user_id);
 
-        if ($user->device_id && $user->device_id !== $request->device_id) {
-            return response()->json(['message' => 'This account is already bound to another phone!'], 403);
-        }
-
+        // Admin can always override - no restriction on existing binding
         $user->update(['device_id' => $request->device_id]);
 
-        return response()->json(['message' => 'Phone paired successfully!']);
+        return response()->json(['message' => 'تم ربط الجهاز بنجاح!']);
+    }
+
+    public function unpairDevice(User $user)
+    {
+        $user->update(['device_id' => null]);
+
+        return response()->json(['message' => 'تم فك ربط الجهاز بنجاح!']);
     }
 
     public function update(Request $request, Attendance $attendance)

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+<div style="max-width: 600px; margin: 0 auto;">
     <!-- QR Scanner Screen -->
     <div class="table-container" style="text-align: center; padding: 3rem;">
         <h2 style="margin-bottom: 2rem;">كود الحضور والانصراف</h2>
@@ -15,26 +15,11 @@
         </div>
     </div>
 
-    <!-- Device Pairing Section -->
-    <div class="table-container">
-        <h2 style="margin-bottom: 1.5rem;">ربط جهاز جديد</h2>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">اختر الموظف لتوليد كود الربط الخاص به</p>
-        
-        <div class="form-group" style="margin-bottom: 2rem;">
-            <select id="employee-select" style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(25, 33, 49, 1); border: 1px solid var(--border-color); color: white;">
-                <option value="">-- اختر الموظف --</option>
-                @foreach($employees as $emp)
-                    <option value="{{ $emp->id }}">{{ $emp->name }}</option>
-                @endforeach
-            </select>
-        </div>
-        
-        <button onclick="generatePairingCode()" class="btn btn-primary" style="width: 100%;">توليد كود الربط</button>
-        
-        <div id="pairing-qr-container" style="margin-top: 2rem; text-align: center; display: none;">
-            <div id="pairing-qrcode" style="background: white; padding: 1rem; border-radius: 15px; display: inline-block;"></div>
-            <p style="margin-top: 1rem; font-weight: 600;">امسح الكود لربط الجهاز</p>
-        </div>
+    <div style="margin-top: 1.5rem; text-align: center;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8;">
+            <i class="fas fa-info-circle" style="margin-left: 0.4rem; color: var(--primary);"></i>
+            لربط جهاز موظف جديد، توجه لصفحة <a href="{{ route('employees.index') }}" style="color: var(--primary);">شؤون الموظفين</a> واختر تعديل الموظف المطلوب.
+        </p>
     </div>
 </div>
 
@@ -69,23 +54,6 @@
             colorLight : "#ffffff",
             correctLevel : QRCode.CorrectLevel.H
         });
-    }
-
-    function generatePairingCode() {
-        const empId = document.getElementById('employee-select').value;
-        if(!empId) return alert('برجاء اختيار موظف');
-        
-        const container = document.getElementById('pairing-qr-container');
-        const qrBox = document.getElementById('pairing-qrcode');
-        qrBox.innerHTML = '';
-        
-        const pairingUrl = window.location.origin + '/setup-phone?user_id=' + empId;
-        new QRCode(qrBox, {
-            text: pairingUrl,
-            width: 180,
-            height: 180
-        });
-        container.style.display = 'block';
     }
 
     fetchNewToken();

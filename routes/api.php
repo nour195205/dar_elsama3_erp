@@ -30,7 +30,37 @@ Route::get('/auth-poll/{token}', [AuthController::class, 'pollAuthQr']);
 // Public Auth
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/attend', [AttendanceController::class, 'attend']);
-Route::post('/pair-device', [AttendanceController::class, 'pairDevice']);
+
+// Public Device Pairing Completion (called from employee's phone after scanning QR)
+Route::post('/complete-pairing', function (Request $request) {
+    $request->validate([
+        'pair_token' => 'required|string',
+        'device_id' => 'required|string',
+    ]);
+
+    $cacheKey = 'pair_token:' . $request->pair_token;
+    $pairingData = Cache::get($cacheKey);
+
+    if (!$pairingData) {
+        return response()->json(['message' => 'رمز الربط غير صالح أو منتهي الصلاحية. اطلب من المسؤول إنشاء رمز جديد.'], 400);
+    }
+
+    $user = \App\Models\User::find($pairingData['user_id']);
+    if (!$user) {
+        return response()->json(['message' => 'الموظف غير موجود.'], 404);
+    }
+
+    $user->update(['device_id' => $request->device_id]);
+
+    // Delete the token so it can't be reused
+    Cache::forget($cacheKey);
+
+    return response()->json([
+        'message' => 'تم ربط الجهاز بنجاح!',
+        'user_id' => $user->id,
+        'user_name' => $user->name,
+    ]);
+});
 
 // Secure Admin Routes
 Route::middleware([\App\Http\Middleware\CheckAdmin::class])->group(function () {
@@ -41,6 +71,10 @@ Route::middleware([\App\Http\Middleware\CheckAdmin::class])->group(function () {
     Route::put('/employees/{employee}', [EmployeeController::class, 'update']);
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy']);
     Route::post('/employees/{employee}/reset-device', [EmployeeController::class, 'resetDevice']);
+
+    // --- Device Pairing (Admin Only) ---
+    Route::post('/pair-device', [AttendanceController::class, 'pairDevice']);
+    Route::post('/unpair-device/{user}', [AttendanceController::class, 'unpairDevice']);
 
     // --- Attendance ---
     Route::get('/attendance', [AttendanceController::class, 'index']);

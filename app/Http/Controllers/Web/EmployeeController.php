@@ -111,4 +111,32 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')->with('success', 'تم حذف الموظف');
     }
+
+    public function pairDevice($id)
+    {
+        $employee = DB::table('users')->find($id);
+        if (!$employee) return redirect()->route('employees.index')->with('error', 'الموظف غير موجود.');
+
+        // Generate a one-time pairing token and cache it for 5 minutes
+        $pairToken = bin2hex(random_bytes(20));
+        \Illuminate\Support\Facades\Cache::put('pair_token:' . $pairToken, [
+            'user_id' => $id,
+            'user_name' => $employee->name,
+        ], 300); // 5 minutes
+
+        return redirect()->route('employees.edit', $id)->with('pair_token', $pairToken);
+    }
+
+    public function unpairDevice($id)
+    {
+        $employee = DB::table('users')->find($id);
+        if (!$employee) return redirect()->route('employees.index')->with('error', 'الموظف غير موجود.');
+
+        DB::table('users')->where('id', $id)->update([
+            'device_id' => null,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('employees.edit', $id)->with('success', 'تم فك ربط الجهاز بنجاح.');
+    }
 }

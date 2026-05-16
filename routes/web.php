@@ -23,6 +23,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [SettingsController::class, 'loginSubmit'])->name('login.submit');
 });
 
+// Public mobile-facing pages (accessed by scanning QR codes)
+Route::get('/attend-process', function () {
+    return view('attend-process');
+})->name('attend.process');
+
+Route::get('/setup-phone', function () {
+    return view('setup-phone');
+})->name('setup.phone');
+
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [SettingsController::class, 'logout'])->name('logout');
 
@@ -96,6 +105,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])
             ->middleware('permission:module_employees_delete')
             ->name('destroy');
+        Route::post('/{id}/pair-device', [EmployeeController::class, 'pairDevice'])->name('pair_device');
+        Route::post('/{id}/unpair-device', [EmployeeController::class, 'unpairDevice'])->name('unpair_device');
     });
 
     Route::get('staff/activity-logs', [ActivityLogController::class, 'index'])

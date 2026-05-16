@@ -23,6 +23,7 @@
                 <th>رقم الهاتف</th>
                 <th>الدور الوظيفي</th>
                 <th>الحالة</th>
+                <th>ربط الجهاز</th>
                 <th>الصلاحيات</th>
                 <th>الإجراءات</th>
             </tr>
@@ -46,6 +47,15 @@
                         <span class="badge" style="background: rgba(0, 230, 153, 0.1); color: #00e699;">نشط</span>
                     @else
                         <span class="badge" style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d;">معطل</span>
+                    @endif
+                </td>
+                <td>
+                    @if($employee->device_id)
+                        <span class="badge" style="background: rgba(0, 230, 153, 0.1); color: #00e699;" title="{{ $employee->device_id }}">
+                            <i class="fas fa-mobile-alt" style="margin-left: 0.3rem;"></i>مربوط
+                        </span>
+                    @else
+                        <span class="badge" style="background: rgba(255, 165, 0, 0.1); color: #ffa500;">غير مربوط</span>
                     @endif
                 </td>
                 <td>
@@ -77,7 +87,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="7" style="text-align: center; padding: 5rem; color: var(--text-muted);">
+                <td colspan="8" style="text-align: center; padding: 5rem; color: var(--text-muted);">
                     <i class="fas fa-users-slash" style="font-size: 4rem; margin-bottom: 1.5rem; display: block; opacity: 0.15;"></i>
                     لا يوجد موظفين مسجلين حالياً
                 </td>
