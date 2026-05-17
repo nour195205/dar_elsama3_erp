@@ -1,59 +1,107 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dar El Sama ERP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue.svg?style=for-the-badge&logo=github)](https://github.com/nour195205/dar_elsama3_erp)
 
-## About Laravel
+A comprehensive Enterprise Resource Planning (ERP) system tailored for Clinic Management, Human Resources, and Financial tracking. Built on the Laravel framework to provide a seamless user experience and precise resource management.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌟 Core Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 👥 1. HR & Attendance Management
+- Manage employees with diverse roles and permissions (Admin, Manager, Employee).
+- **Smart QR Attendance System:** Employees scan a QR code from a display screen using their smartphones to check in and out.
+- **Secure Device Pairing:** Prevents fraud by binding each employee's account to their personal device with a uniquely generated Device ID. Attendance cannot be recorded from unauthorized devices.
+- **Automated Payroll Calculation:** Automatically calculates working hours based on check-in/out times and computes the earned salary based on the employee's configured Hourly Rate.
 
-## Learning Laravel
+### 🏥 2. Clinic Management
+- Comprehensive patient database including contact details.
+- Manage the list of doctors and their specializations.
+- Manage medical tests and test types.
+- Delegate management and visit tracking.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 💰 3. Finance Module
+- Track Revenues and Expenses.
+- Complete log of financial Transactions and treasury movements.
+- Manage and issue Doctor Payouts based on percentages and operations.
+- Comprehensive financial dashboard and reports for tracking profit and loss.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🔒 4. Advanced ACL (Access Control List)
+- Permission Groups system for easy role assignment.
+- Granular control at the Module level and Action level (Create, Edit, Delete).
+- Detailed Activity Logs to track all system changes and the users who performed them, maintaining transparency and security.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Tech Stack
 
-### Premium Partners
+| Technology | Description |
+|------------|-------------|
+| **Backend** | PHP 8.x / Laravel 11/12 |
+| **Frontend** | Blade Templates, HTML5, Vanilla CSS |
+| **Database** | MySQL |
+| **Interactivity**| Vanilla JavaScript, AJAX, qrcode.js |
+| **Styling** | Custom CSS Variables, FontAwesome Icons |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 📂 System Architecture & UML
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The `docs/uml/` directory contains engineering diagrams in **PlantUML** format to illustrate the project's architecture:
 
-## Code of Conduct
+1. [Use Case Diagram](docs/uml/use_cases.puml)
+2. [Database ER Diagram](docs/uml/database.puml)
+3. [Class Diagram](docs/uml/class_diagram.puml)
+4. [Component Diagram](docs/uml/component_diagram.puml)
+5. [Attendance Sequence Diagram](docs/uml/attendance_flow.puml)
+6. [Attendance Activity Diagram](docs/uml/activity_diagram.puml)
+7. [Device Pairing State Diagram](docs/uml/state_diagram.puml)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 🚀 Installation & Local Development
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+To set up the project in your local environment, follow these steps:
 
-## License
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/nour195205/dar_elsama3_erp.git
+   cd dar_elsama3_erp
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **Install Backend Dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Configure the Environment:**
+   Copy the `.env.example` file to `.env` and update your database connection details.
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Prepare the Database:**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+5. **Run the Development Server:**
+   ```bash
+   php artisan serve
+   ```
+   *The system will be available at `http://localhost:8000`*
+
+---
+
+## 🌐 Shared Hosting Notes
+
+The system is optimized to run efficiently on shared hosting environments such as **InfinityFree**:
+
+- **Public Routing Fix:** Ensure an `.htaccess` file exists in the Root Directory to forward all requests to the `/public` folder.
+- **QR Screen 404 Fixes:** Ensure the relevant routes in `web.php` are defined as Public and exclude authentication Middleware.
+- **Caching Mechanism:** The QR Code (Pairing) system relies on token caching. Ensure that `CACHE_DRIVER=file` is correctly configured in your hosting environment to prevent session loss.
+- **View Updates:** When uploading changes to `Blade` files, make sure to clear the cached files in `storage/framework/views/` to apply updates.
+
+---
+*Developed as the ultimate solution for efficiently and easily managing Dar El Sama.*

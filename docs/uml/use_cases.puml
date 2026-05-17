@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Admin" as admin
+actor "Manager" as manager
+actor "Employee" as employee
+
+package "Dar El Sama ERP" {
+  usecase "Manage Employees" as UC_Employees
+  usecase "Manage Permissions" as UC_Permissions
+  usecase "Manage Clinic (Patients, Doctors, Tests)" as UC_Clinic
+  usecase "Manage Finance (Expenses, Revenues, Payouts)" as UC_Finance
+  usecase "Pair Employee Devices (QR)" as UC_Device
+  usecase "Track Attendance" as UC_Attendance_Admin
+  usecase "Record Attendance (Mobile)" as UC_Attendance_Emp
+  usecase "Reports & Activity Logs" as UC_Reports
+}
+
+admin --> UC_Employees
+admin --> UC_Permissions
+admin --> UC_Clinic
+admin --> UC_Finance
+admin --> UC_Device
+admin --> UC_Attendance_Admin
+admin --> UC_Reports
+
+manager --> UC_Clinic
+manager --> UC_Reports
+manager --> UC_Attendance_Admin
+
+employee --> UC_Attendance_Emp
+@enduml

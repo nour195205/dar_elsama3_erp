@@ -1,0 +1,38 @@
+@startuml
+skinparam sequenceMessageAlign center
+autonumber
+
+actor "Employee (Mobile)" as emp
+actor "Admin (Web)" as admin
+participant "Dashboard (Web)" as web
+participant "Server (API)" as server
+database "Database" as db
+
+box "Device Pairing Process" #LightCyan
+admin -> web: Click "Generate Pairing QR" for an employee
+web -> server: Request pairing token
+server -> server: Generate pair_token & save to Cache (5 mins)
+server --> web: Return Token and display QR Code
+emp -> web: Scan QR Code with Mobile Camera
+web -> emp: Open URL /setup-phone?pair_token=XXX on mobile
+emp -> emp: Generate unique device_id & save to LocalStorage
+emp -> server: POST /api/complete-pairing \n {pair_token, device_id}
+server -> db: Validate Token and update employee's device_id
+server --> emp: "Pairing Successful" Message
+end box
+
+box "Daily Attendance Recording" #LightYellow
+emp -> web: Scan Attendance QR from Smart Display
+web -> emp: Open URL /attend-process?token=YYY on mobile
+emp -> server: Select "Check In" or "Check Out"
+emp -> server: POST /api/attend \n {user_id, token_in/out, device_id}
+server -> db: Match provided device_id with registered device
+alt Device Matches
+    server -> db: Record Check In/Out time
+    server --> emp: Success Message
+else Device Mismatched or Unregistered
+    server --> emp: Error Message (Unauthorized Device)
+end
+end box
+
+@enduml

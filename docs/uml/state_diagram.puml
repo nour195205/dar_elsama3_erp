@@ -1,0 +1,15 @@
+@startuml
+[*] --> Unpaired : New Employee Created
+
+Unpaired --> PairingInitiated : Admin generates Pair QR
+PairingInitiated --> Paired : Employee scans QR & registers device
+PairingInitiated --> Unpaired : Token expires (5 min)
+
+Paired --> Active : Employee checks in
+Active --> Paired : Employee checks out
+
+Paired --> Unpaired : Admin unpairs device
+Active --> Unpaired : Admin unpairs device
+
+Unpaired --> [*] : Employee deleted
+@enduml

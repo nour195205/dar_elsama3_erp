@@ -1,0 +1,24 @@
+@startuml
+package "Frontend (Browser/Mobile)" {
+  [Blade Templates] as Views
+  [Vanilla JS] as JS
+}
+
+package "Backend (Laravel)" {
+  [Routing (web.php / api.php)] as Routing
+  [Controllers] as Controllers
+  [Middleware (Auth, Roles)] as Middleware
+  [Eloquent ORM] as ORM
+}
+
+database "MySQL Database" {
+  [Tables: users, attendances, etc.] as DB
+}
+
+Views --> Routing : "HTTP GET/POST"
+JS --> Routing : "AJAX/Fetch API"
+Routing --> Middleware : "Validate Request"
+Middleware --> Controllers : "Forward if authorized"
+Controllers --> ORM : "CRUD Operations"
+ORM --> DB : "SQL Queries"
+@enduml

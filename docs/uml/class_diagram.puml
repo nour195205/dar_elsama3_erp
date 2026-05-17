@@ -1,0 +1,58 @@
+@startuml
+package "Web/API Controllers" {
+  class EmployeeController {
+    + index()
+    + create()
+    + store(request)
+    + edit(id)
+    + update(request, id)
+    + destroy(id)
+    + pairDevice(id)
+    + unpairDevice(id)
+  }
+
+  class AttendanceController {
+    + index()
+    + scanner()
+    + attend(request)
+  }
+
+  class FinanceController {
+    + index()
+    + storeTransaction(request)
+    + doctorPayouts()
+  }
+}
+
+package "Models" {
+  class User {
+    - id
+    - name
+    - email
+    - role
+    - device_id
+    - hourly_rate
+  }
+
+  class Attendance {
+    - id
+    - user_id
+    - date
+    - check_in
+    - check_out
+  }
+
+  class Transaction {
+    - id
+    - amount
+    - type
+  }
+}
+
+EmployeeController ..> User : "Manages"
+AttendanceController ..> Attendance : "Manages"
+AttendanceController ..> User : "Checks device_id"
+FinanceController ..> Transaction : "Manages"
+
+User "1" *-- "Many" Attendance
+@enduml

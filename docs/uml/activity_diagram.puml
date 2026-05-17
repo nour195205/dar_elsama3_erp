@@ -1,0 +1,22 @@
+@startuml
+start
+:Employee scans daily QR Code;
+:Opens /attend-process?token=XYZ on phone;
+if (Is token valid?) then (Yes)
+  if (Is device registered?) then (Yes)
+    :Select Check In or Check Out;
+    :POST /api/attend;
+    if (Device matches?) then (Yes)
+      :Save attendance record;
+      :Show success message;
+    else (No)
+      :Show error: Unauthorized device;
+    endif
+  else (No)
+    :Show error: Device not registered;
+  endif
+else (No)
+  :Show error: Invalid/Expired QR Code;
+endif
+stop
+@enduml

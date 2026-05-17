@@ -1,0 +1,70 @@
+@startuml
+skinparam roundcorner 20
+skinparam class {
+    BackgroundColor White
+    ArrowColor SeaGreen
+    BorderColor SeaGreen
+}
+
+entity "Users" as users {
+  * id : bigint <<generated>>
+  --
+  name : varchar
+  email : varchar
+  password : varchar
+  phone : varchar
+  role : enum (admin, manager, employee)
+  hourly_rate : decimal(8,2)
+  is_active : boolean
+  device_id : varchar (Device ID for Attendance)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "Attendances" as attendances {
+  * id : bigint <<generated>>
+  --
+  * user_id : bigint <<FK>>
+  date : date
+  check_in : time
+  check_out : time
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "Patients" as patients {
+  * id : bigint <<generated>>
+  --
+  name : varchar
+  phone : varchar
+  --
+}
+
+entity "Doctors" as doctors {
+  * id : bigint <<generated>>
+  --
+  name : varchar
+  specialization : varchar
+}
+
+entity "Transactions" as transactions {
+  * id : bigint <<generated>>
+  --
+  amount : decimal
+  type : varchar
+  description : text
+}
+
+entity "Activity Logs" as activity_logs {
+  * id : bigint <<generated>>
+  --
+  user_id : bigint <<FK>>
+  action : varchar
+  description : text
+  created_at : timestamp
+}
+
+users ||--o{ attendances : "records"
+users ||--o{ activity_logs : "performs"
+
+@enduml
