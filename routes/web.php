@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('finance')->middleware('permission:module_finance')->name('finance.')->group(function () {
         Route::get('/', [FinanceController::class, 'index'])->name('index');
         Route::get('/reports', [FinanceController::class, 'reports'])->name('reports');
+        Route::get('/reports/export', [FinanceController::class, 'exportCsv'])->name('reports.export');
         Route::post('/store', [FinanceController::class, 'storeTransaction'])->name('store');
         Route::get('/doctor-payouts', [FinanceController::class, 'doctorPayouts'])->name('doctor_payouts');
         Route::post('/doctor-payouts/mark', [FinanceController::class, 'markPayoutsPaid'])->name('doctor_payouts.mark');
