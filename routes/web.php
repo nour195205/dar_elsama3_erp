@@ -33,6 +33,12 @@ Route::get('/setup-phone', function () {
 })->name('setup.phone');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/api/qr-generate', function () {
+        $token = \Illuminate\Support\Str::random(40);
+        \Illuminate\Support\Facades\Cache::put('current_qr_token', $token, 15);
+        return response()->json(['token' => $token]);
+    })->middleware(['permission:module_attendance', 'throttle:qr-generate']);
+
     Route::post('/logout', [SettingsController::class, 'logout'])->name('logout');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

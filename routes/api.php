@@ -35,13 +35,6 @@ Route::post('/attend', [AttendanceController::class, 'attend'])
 // Token-based validation داخلياً (pair_token من Cache)
 Route::post('/complete-pairing', [AuthController::class, 'completePairing']);
 
-// QR Token Generation — محمي بـ Rate Limiter + يتطلب auth:sanctum
-Route::get('/qr-generate', function () {
-    $token = Str::random(40);
-    // Cache for 15 seconds to allow a 5 second transmission margin
-    Cache::put('current_qr_token', $token, 15);
-    return response()->json(['token' => $token]);
-})->middleware(['auth:sanctum', 'throttle:qr-generate']);
 
 // =====================================================================
 // Authenticated Routes (تتطلب auth:sanctum)

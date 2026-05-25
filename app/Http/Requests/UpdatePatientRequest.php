@@ -14,11 +14,17 @@ class UpdatePatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'age' => 'required|integer|min:0|max:150',
-            'address' => 'nullable|string|max:500',
-            'visit_type' => 'nullable|string',
+            'name'                => 'required|string|max:255',
+            'phone'               => 'required|string|max:20',
+            'age'                 => 'required|integer|min:0|max:150',
+            'address'             => 'nullable|string|max:500',
+            'visit_type'          => 'nullable|string',
+            'date'                => 'nullable|date',
+            'referring_doctor_id' => 'nullable|exists:doctors,id',
+            'internal_doctor_id'  => 'nullable|exists:doctors,id',
+            'test_type_id'        => 'nullable|exists:test_types,id',
+            'test_price'          => 'nullable|numeric|min:0',
+            'supplies_cost'       => 'nullable|numeric|min:0',
         ];
     }
 

@@ -8,6 +8,7 @@ use App\Models\Patient;
 use App\Models\TestType;
 use App\Models\Delegate;
 use App\Support\ActivityLogger;
+use App\Services\PatientService;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
 use App\Http\Requests\StorePatientRequest;
@@ -118,112 +119,11 @@ class ClinicController extends Controller
 
     public function patientsStore(StorePatientRequest $request)
     {
-        $patient = DB::transaction(function () use ($request) {
-            $internalDoctor = $request->internal_doctor_id ? Doctor::find($request->internal_doctor_id) : null;
-            $externalDoctor = $request->referring_doctor_id ? Doctor::find($request->referring_doctor_id) : null;
+        $service = new PatientService();
 
-            $testPrice = $request->test_price ?? 0;
-
-            $commInternal = 0;
-            if ($internalDoctor) {
-                $commInternal = $internalDoctor->commission_type == 'Percentage'
-                    ? ($testPrice * ($internalDoctor->commission_value / 100))
-                    : $internalDoctor->commission_value;
-            }
-
-            $commExternal = 0;
-            if ($externalDoctor) {
-                $commExternal = $externalDoctor->commission_type == 'Percentage'
-                    ? ($testPrice * ($externalDoctor->commission_value / 100))
-                    : $externalDoctor->commission_value;
-            }
-
-            $patient = Patient::create([
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'age' => $request->age,
-                'address' => $request->address,
-                'visit_type' => $request->visit_type,
-                'date' => $request->date ?? now()->toDateString(),
-                'referring_doctor_id' => $request->referring_doctor_id,
-                'internal_doctor_id' => $request->internal_doctor_id,
-                'test_type_id' => $request->test_type_id,
-                'test_price' => $testPrice,
-                'commission_internal' => $commInternal,
-                'commission_external' => $commExternal,
-                'supplies_cost' => 0,
-            ]);
-
-            if ($testPrice > 0) {
-                DB::table('transactions')->insert([
-                    'type' => 'income',
-                    'category' => 'test_revenue',
-                    'amount' => $testPrice,
-                    'description' => "إيراد فحص: {$request->name}",
-                    'reference_id' => $patient->id,
-                    'reference_type' => Patient::class,
-                    'date' => $request->date ?? now()->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            if ($internalDoctor && $commInternal > 0) {
-                DB::table('doctor_payouts')->insert([
-                    'doctor_id' => $internalDoctor->id,
-                    'doctor_type' => 'internal',
-                    'patient_id' => $patient->id,
-                    'amount' => $commInternal,
-                    'calculation_basis' => $internalDoctor->commission_type,
-                    'calculation_value' => $internalDoctor->commission_value,
-                    'date' => $request->date ?? now()->toDateString(),
-                    'is_paid' => false,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                DB::table('transactions')->insert([
-                    'type' => 'payout',
-                    'category' => 'doctor_commission',
-                    'amount' => $commInternal,
-                    'description' => "عمولة طبيب داخلي - {$request->name}",
-                    'reference_id' => $patient->id,
-                    'reference_type' => Patient::class,
-                    'date' => $request->date ?? now()->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            if ($externalDoctor && $commExternal > 0) {
-                DB::table('doctor_payouts')->insert([
-                    'doctor_id' => $externalDoctor->id,
-                    'doctor_type' => 'external',
-                    'patient_id' => $patient->id,
-                    'amount' => $commExternal,
-                    'calculation_basis' => $externalDoctor->commission_type,
-                    'calculation_value' => $externalDoctor->commission_value,
-                    'date' => $request->date ?? now()->toDateString(),
-                    'is_paid' => false,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                DB::table('transactions')->insert([
-                    'type' => 'payout',
-                    'category' => 'doctor_commission',
-                    'amount' => $commExternal,
-                    'description' => "عمولة طبيب محول - {$request->name}",
-                    'reference_id' => $patient->id,
-                    'reference_type' => Patient::class,
-                    'date' => $request->date ?? now()->toDateString(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
-
-            return $patient;
-        });
+        $patient = $service->createPatient($request->validated() + [
+            'supplies_cost' => $request->input('supplies_cost', 0),
+        ]);
 
         ActivityLogger::forModel('patient.created', 'تم تسجيل مريض: ' . $patient->name, $patient, [
             'phone' => $patient->phone,
@@ -253,13 +153,10 @@ class ClinicController extends Controller
     public function patientsUpdate(UpdatePatientRequest $request, $id)
     {
         $patient = Patient::findOrFail($id);
-        $patient->update([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'age' => $request->age,
-            'address' => $request->address,
-            'visit_type' => $request->visit_type,
-        ]);
+        $service = new PatientService();
+
+        $patient = $service->updatePatient($patient, $request->validated());
+
         ActivityLogger::forModel('patient.updated', 'تم تحديث بيانات مريض: ' . $patient->name, $patient);
 
         return redirect()->route('patients.index')->with('success', 'تم تحديث بيانات المريض');
@@ -271,13 +168,9 @@ class ClinicController extends Controller
         $label = $patient->name;
         $pid = $patient->id;
 
-        DB::table('transactions')
-            ->where('reference_id', $patient->id)
-            ->where('reference_type', Patient::class)
-            ->delete();
-        DB::table('doctor_payouts')->where('patient_id', $patient->id)->delete();
+        $service = new PatientService();
+        $service->deletePatient($patient);
 
-        $patient->delete();
         ActivityLogger::record('patient.deleted', 'تم حذف مريض وسجلاته: ' . $label, Patient::class, $pid);
 
         return redirect()->route('patients.index')->with('success', 'تم حذف المريض وسجلاته المالية');
@@ -370,8 +263,11 @@ class ClinicController extends Controller
     public function delegatesStore(StoreDelegateRequest $request)
     {
         $delegate = Delegate::create([
-            'name' => $request->name,
-            'region' => $request->company ?? null,
+            'name'    => $request->name,
+            'company' => $request->company ?? null,
+            'region'  => $request->region ?? null,
+            'phone'   => $request->phone ?? null,
+            'notes'   => $request->notes ?? null,
         ]);
         ActivityLogger::forModel('delegate.created', 'تمت إضافة مندوب: ' . $delegate->name, $delegate);
 

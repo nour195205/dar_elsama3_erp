@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends Controller
 {
@@ -30,7 +29,7 @@ class EmployeeController extends Controller
             'phone' => $request->phone,
             'hourly_rate' => $request->hourly_rate,
             'role' => $request->role ?? 'employee',
-            'password' => Hash::make($request->password),
+            'password' => $request->password, // الـ User model يحتوي على hashed cast
         ]);
 
         return response()->json(['message' => 'Employee added successfully!', 'employee' => $employee]);
@@ -57,7 +56,7 @@ class EmployeeController extends Controller
         }
 
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = $request->password; // الـ hashed cast يتكفل بالتشفير
         }
 
         $employee->update($data);
