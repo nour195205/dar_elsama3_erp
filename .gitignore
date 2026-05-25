@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# User data & databases
+/حالات 2026.csv
+/database/database.sqlite
+*.sqlite
