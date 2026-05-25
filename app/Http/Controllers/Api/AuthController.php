@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
@@ -39,7 +41,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $user->createToken('mobile_app')->plainTextToken,
-            'user'  => $user
+            'user'  => new UserResource($user),
         ]);
     }
 
@@ -81,13 +83,13 @@ class AuthController extends Controller
         // Automatically log them in as "Check_in" if they don't have an open session today
         $today = now()->toDateString();
         $currentTime = now()->toTimeString();
-        $openAttendance = \App\Models\Attendance::where('user_id', $user->id)
+        $openAttendance = Attendance::where('user_id', $user->id)
             ->where('date', $today)
             ->whereNull('check_out')
             ->first();
 
         if (!$openAttendance) {
-            \App\Models\Attendance::create([
+            Attendance::create([
                 'user_id' => $user->id,
                 'date' => $today,
                 'check_in' => $currentTime,
@@ -96,10 +98,11 @@ class AuthController extends Controller
         }
 
         // Mark the session as authorized and store the API token
-        \Illuminate\Support\Facades\Cache::put('admin_auth_' . $request->qr_token, [
+        // نستخدم UserResource لتحويل بيانات المستخدم بشكل آمن
+        Cache::put('admin_auth_' . $request->qr_token, [
             'status' => 'authorized',
             'api_token' => $desktopToken,
-            'user' => $user
+            'user' => (new UserResource($user))->resolve(),
         ], 60);
 
         return response()->json(['message' => 'Desktop authorized successfully!']);
@@ -119,10 +122,46 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 'authorized',
                 'token' => $sessionData['api_token'],
-                'user' => $sessionData['user']
+                'user' => $sessionData['user'],
             ]);
         }
 
         return response()->json(['status' => 'pending']);
+    }
+
+    /**
+     * إتمام ربط الجهاز — يُستدعى من هاتف الموظف بعد مسح QR code الربط.
+     */
+    public function completePairing(Request $request)
+    {
+        $request->validate([
+            'pair_token' => 'required|string',
+            'device_id' => 'required|string',
+        ]);
+
+        $cacheKey = 'pair_token:' . $request->pair_token;
+        $pairingData = Cache::get($cacheKey);
+
+        if (!$pairingData) {
+            return response()->json([
+                'message' => 'رمز الربط غير صالح أو منتهي الصلاحية. اطلب من المسؤول إنشاء رمز جديد.'
+            ], 400);
+        }
+
+        $user = User::find($pairingData['user_id']);
+        if (!$user) {
+            return response()->json(['message' => 'الموظف غير موجود.'], 404);
+        }
+
+        $user->update(['device_id' => $request->device_id]);
+
+        // Delete the token so it can't be reused
+        Cache::forget($cacheKey);
+
+        return response()->json([
+            'message' => 'تم ربط الجهاز بنجاح!',
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+        ]);
     }
 }

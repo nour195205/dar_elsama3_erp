@@ -11,20 +11,18 @@ class CheckAdmin
     /**
      * Handle an incoming request.
      *
+     * يتطلب دائماً مصادقة Sanctum + صلاحية Admin.
+     * لم يعد يسمح بالوصول المفتوح إذا لم يكن هناك أدمن.
+     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $hasAdmins = \App\Models\User::where('role', 'admin')->exists();
+        $user = auth('sanctum')->user();
 
-        if ($hasAdmins) {
-            // Admins exist — enforce token auth
-            $user = auth('sanctum')->user();
-            if (!$user || $user->role !== 'admin') {
-                return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
-            }
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
-        // No admins at all — free access
 
         return $next($request);
     }
