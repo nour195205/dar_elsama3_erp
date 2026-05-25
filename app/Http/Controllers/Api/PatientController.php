@@ -26,7 +26,7 @@ class PatientController extends Controller
             $query->whereBetween('date', [$request->from, $request->to]);
         }
 
-        return response()->json(['data' => $query->orderBy('date', 'desc')->get()]);
+        return response()->json($query->orderBy('date', 'desc')->paginate(15));
     }
 
     public function store(Request $request)

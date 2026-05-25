@@ -67,20 +67,37 @@ class User extends Authenticatable
         return $this->belongsToMany(PermissionGroup::class, 'permission_group_user');
     }
 
+    /**
+     * Cached permission names — يتم تحميلها مرة واحدة فقط خلال الـ Request.
+     */
+    protected ?array $cachedPermissionNames = null;
+
+    /**
+     * تحميل جميع أسماء الصلاحيات (direct + groups) مرة واحدة.
+     */
+    protected function resolvedPermissionNames(): array
+    {
+        if ($this->cachedPermissionNames === null) {
+            $direct = $this->permissions()->pluck('name')->all();
+
+            $fromGroups = $this->permissionGroups()
+                ->with('permissions:id,name')
+                ->get()
+                ->flatMap(fn ($group) => $group->permissions->pluck('name'))
+                ->all();
+
+            $this->cachedPermissionNames = array_unique(array_merge($direct, $fromGroups));
+        }
+
+        return $this->cachedPermissionNames;
+    }
+
     public function hasPermission(string $permissionName): bool
     {
         if ($this->role === 'admin') {
             return true;
         }
 
-        if ($this->permissions()->where('name', $permissionName)->exists()) {
-            return true;
-        }
-
-        return $this->permissionGroups()
-            ->whereHas('permissions', function ($q) use ($permissionName) {
-                $q->where('name', $permissionName);
-            })
-            ->exists();
+        return in_array($permissionName, $this->resolvedPermissionNames(), true);
     }
 }

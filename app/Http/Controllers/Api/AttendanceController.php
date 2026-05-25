@@ -14,34 +14,32 @@ class AttendanceController extends Controller
     {
         $records = Attendance::with('user:id,name,hourly_rate')
             ->orderBy('date', 'desc')
-            ->get();
-            
-        // Calculate work hours and salary dynamically
-        $records = $records->map(function ($record) {
-            $checkIn = \Carbon\Carbon::parse($record->check_in);
-            $checkOut = $record->check_out ? \Carbon\Carbon::parse($record->check_out) : null;
-            
-            $hours = 0;
-            $salary = 0;
-            
-            if ($checkOut) {
-                $hours = $checkIn->diffInSeconds($checkOut) / 3600; // in hours
-                $salary = $hours * ($record->user->hourly_rate ?? 0);
-            }
-            
-            return [
-                'id' => $record->id,
-                'employee_name' => $record->user->name,
-                'date' => $record->date,
-                'check_in' => $record->check_in,
-                'check_out' => $record->check_out,
-                'status' => $record->status,
-                'work_hours' => round($hours, 2),
-                'earned_salary' => round($salary, 2)
-            ];
-        });
-        
-        return response()->json(['reports' => $records]);
+            ->paginate(15)
+            ->through(function ($record) {
+                $checkIn = \Carbon\Carbon::parse($record->check_in);
+                $checkOut = $record->check_out ? \Carbon\Carbon::parse($record->check_out) : null;
+
+                $hours = 0;
+                $salary = 0;
+
+                if ($checkOut) {
+                    $hours = $checkIn->diffInSeconds($checkOut) / 3600;
+                    $salary = $hours * ($record->user->hourly_rate ?? 0);
+                }
+
+                return [
+                    'id' => $record->id,
+                    'employee_name' => $record->user->name,
+                    'date' => $record->date,
+                    'check_in' => $record->check_in,
+                    'check_out' => $record->check_out,
+                    'status' => $record->status,
+                    'work_hours' => round($hours, 2),
+                    'earned_salary' => round($salary, 2)
+                ];
+            });
+
+        return response()->json($records);
     }
 
     public function attend(Request $request)

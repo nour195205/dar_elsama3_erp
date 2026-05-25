@@ -53,4 +53,8 @@
         </tbody>
     </table>
 </div>
+
+<div style="margin-top: 1.5rem;">
+    {{ $delegates->links() }}
+</div>
 @endsection

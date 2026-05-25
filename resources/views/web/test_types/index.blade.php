@@ -50,4 +50,8 @@
         </tbody>
     </table>
 </div>
+
+<div style="margin-top: 1.5rem;">
+    {{ $testTypes->links() }}
+</div>
 @endsection

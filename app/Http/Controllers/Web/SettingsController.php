@@ -94,6 +94,6 @@ class SettingsController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('dashboard')->with('success', 'تم تسجيل الخروج');
+        return redirect()->route('login')->with('success', 'تم تسجيل الخروج');
     }
 }

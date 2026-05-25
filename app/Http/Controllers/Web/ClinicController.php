@@ -25,7 +25,7 @@ class ClinicController extends Controller
 
     public function doctorsIndex()
     {
-        $doctors = Doctor::all();
+        $doctors = Doctor::paginate(15);
         return view('web.doctors.index', [
             'title' => 'إدارة الأطباء',
             'subtitle' => 'قائمة بالأطباء الداخليين والمحولين للمركز',
@@ -94,7 +94,7 @@ class ClinicController extends Controller
 
     public function patientsIndex()
     {
-        $patients = Patient::orderBy('created_at', 'desc')->get();
+        $patients = Patient::orderBy('created_at', 'desc')->paginate(15);
         return view('web.patients.index', [
             'title' => 'سجلات المرضى',
             'subtitle' => 'قاعدة بيانات المرضى والتاريخ الطبي',
@@ -180,7 +180,7 @@ class ClinicController extends Controller
 
     public function testTypesIndex()
     {
-        $testTypes = TestType::all();
+        $testTypes = TestType::paginate(15);
         return view('web.test_types.index', [
             'title' => 'أنواع الفحوصات',
             'subtitle' => 'قائمة الفحوصات الطبية وأسعارها',
@@ -244,7 +244,7 @@ class ClinicController extends Controller
 
     public function delegatesIndex()
     {
-        $delegates = Delegate::all();
+        $delegates = Delegate::paginate(15);
         return view('web.delegates.index', [
             'title' => 'إدارة المناديب',
             'subtitle' => 'قائمة المناديب والشركات التابعين لها',

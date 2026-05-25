@@ -58,4 +58,8 @@
         </tbody>
     </table>
 </div>
+
+<div style="margin-top: 1.5rem;">
+    {{ $doctors->links() }}
+</div>
 @endsection
