@@ -26,4 +26,5 @@ Thumbs.db
 # User data & databases
 /حالات 2026.csv
 /database/database.sqlite
+/database/data/patients_2026.csv
 *.sqlite
